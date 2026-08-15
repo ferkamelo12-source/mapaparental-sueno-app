@@ -12,12 +12,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* El diseño de esta app está hecho para modo claro (tarjetas blancas,
+   fondos claros con acentos de color). No activamos modo oscuro automático
+   por sistema porque el texto se vuelve casi blanco y queda invisible sobre
+   esas tarjetas claras. Si en el futuro se quiere modo oscuro real, hay que
+   rediseñar cada tarjeta con su propio par de colores claro/oscuro. */
 
 body {
   background: var(--background);

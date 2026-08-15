@@ -29,7 +29,7 @@ function LoginForm() {
 
   if (sent) {
     return (
-      <div className="mt-8 rounded-xl bg-blue-50 p-6 text-center">
+      <div className="mt-8 rounded-xl bg-blue-50 p-6 text-center text-stone-900">
         <p className="font-semibold">Revisa tu correo ✉️</p>
         <p className="mt-2 text-sm text-stone-600">
           Te enviamos un enlace mágico a {email}. Ábrelo para entrar y guardar
