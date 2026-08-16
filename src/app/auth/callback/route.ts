@@ -8,8 +8,17 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error) {
+      return NextResponse.redirect(`${origin}${next}`)
+    }
+    // El intercambio falló (link vencido, ya usado, o abierto en un
+    // navegador distinto al que lo pidió). Avisamos en vez de mandar
+    // a la persona de vuelta al formulario sin explicación.
+    return NextResponse.redirect(
+      `${origin}/login?error=${encodeURIComponent(error.message)}&next=${encodeURIComponent(next)}`
+    )
   }
 
-  return NextResponse.redirect(`${origin}${next}`)
+  return NextResponse.redirect(`${origin}/login?error=missing_code&next=${encodeURIComponent(next)}`)
 }

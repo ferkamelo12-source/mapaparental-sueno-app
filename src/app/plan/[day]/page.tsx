@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import {
@@ -17,6 +17,32 @@ type Baby = {
   main_problem: string
 }
 
+function FullAudioPlayer() {
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [part, setPart] = useState<1 | 2>(1)
+
+  useEffect(() => {
+    if (part === 2 && audioRef.current) {
+      audioRef.current.load()
+      audioRef.current.play().catch(() => {})
+    }
+  }, [part])
+
+  return (
+    <audio
+      ref={audioRef}
+      controls
+      className="mt-3 w-full"
+      preload="none"
+      onEnded={() => {
+        if (part === 1) setPart(2)
+      }}
+    >
+      <source src={`/audio/audio-completo-parte${part}.mp3`} type="audio/mpeg" />
+    </audio>
+  )
+}
+
 export default function PlanDayPage() {
   const params = useParams()
   const router = useRouter()
@@ -26,6 +52,7 @@ export default function PlanDayPage() {
   const [loading, setLoading] = useState(true)
   const [baby, setBaby] = useState<Baby | null>(null)
   const [hasAccess, setHasAccess] = useState(false)
+  const [isPaidUser, setIsPaidUser] = useState(false)
 
   const bootstrap = useCallback(async () => {
     const {
@@ -65,16 +92,22 @@ export default function PlanDayPage() {
       setBaby(babies[0])
     }
 
+    // Consultamos la suscripción siempre (no solo del día 2 en adelante),
+    // porque también la usamos para decidir si se desbloquea el audio
+    // completo en vez del adelanto, sin importar en qué día esté la persona.
+    const { data: sub } = await supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    const paid = !!sub && ['trialing', 'active'].includes(sub.status)
+    setIsPaidUser(paid)
+
     // Día 1 siempre gratis. Del día 2 en adelante requiere suscripción activa/en prueba.
     if (day <= 1) {
       setHasAccess(true)
     } else {
-      const { data: sub } = await supabase
-        .from('subscriptions')
-        .select('status')
-        .eq('user_id', user.id)
-        .maybeSingle()
-      setHasAccess(!!sub && ['trialing', 'active'].includes(sub.status))
+      setHasAccess(paid)
     }
 
     setLoading(false)
@@ -139,11 +172,21 @@ export default function PlanDayPage() {
       )}
 
       <div className="mt-6 rounded-xl border border-stone-200 bg-white p-5">
-        <p className="text-sm text-stone-500">🎧 Audio de hoy</p>
+        <p className="text-sm text-stone-500">🎧 Audio</p>
         <p className="font-medium">{content.audioTrack}</p>
-        <p className="mt-1 text-xs text-stone-400">
-          (Sube el audio narrado de esta sección para reproducirlo aquí)
-        </p>
+        {isPaidUser ? (
+          <FullAudioPlayer />
+        ) : (
+          <>
+            <audio controls className="mt-3 w-full" preload="none">
+              <source src="/audio/preview-gratis.mp3" type="audio/mpeg" />
+            </audio>
+            <p className="mt-2 text-xs text-stone-400">
+              Este es un adelanto de 90 segundos. Al activar tu plan, se
+              desbloquea el audio completo de la guía.
+            </p>
+          </>
+        )}
       </div>
 
       <ul className="mt-6 space-y-3">

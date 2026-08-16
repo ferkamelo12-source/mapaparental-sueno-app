@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase-browser'
 function LoginForm() {
   const params = useSearchParams()
   const next = params.get('next') ?? '/plan/1'
+  const callbackError = params.get('error')
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -44,6 +45,13 @@ function LoginForm() {
       <p className="text-stone-600">
         Tu plan ya está listo. Déjanos tu correo para guardarlo y no perderlo.
       </p>
+      {callbackError && (
+        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+          Tu enlace ya no es válido (venció o ya se usó, o se abrió en un
+          navegador distinto al que pediste el acceso). Pide uno nuevo abajo
+          y ábrelo desde el mismo navegador donde escribes tu correo.
+        </div>
+      )}
       <input
         type="email"
         required
