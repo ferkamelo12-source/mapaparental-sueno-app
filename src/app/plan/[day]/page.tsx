@@ -17,7 +17,7 @@ type Baby = {
   main_problem: string
 }
 
-function FullAudioPlayer() {
+function FullAudioPlayer({ onPlay }: { onPlay: () => void }) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [part, setPart] = useState<1 | 2>(1)
 
@@ -34,6 +34,7 @@ function FullAudioPlayer() {
       controls
       className="mt-3 w-full"
       preload="none"
+      onPlay={onPlay}
       onEnded={() => {
         if (part === 1) setPart(2)
       }}
@@ -53,6 +54,9 @@ export default function PlanDayPage() {
   const [baby, setBaby] = useState<Baby | null>(null)
   const [hasAccess, setHasAccess] = useState(false)
   const [isPaidUser, setIsPaidUser] = useState(false)
+  const [audioPlayed, setAudioPlayed] = useState(false)
+  const [checkedTasks, setCheckedTasks] = useState<boolean[]>([])
+  const [mythsRead, setMythsRead] = useState(false)
 
   const bootstrap = useCallback(async () => {
     const {
@@ -136,6 +140,10 @@ export default function PlanDayPage() {
   const content = DAY_PLAN[day]
   if (!content) return <main className="p-8 text-center">Día no válido.</main>
 
+  const tasksAllChecked =
+    content.tasks.length > 0 && checkedTasks.filter(Boolean).length === content.tasks.length
+  const canComplete = audioPlayed && tasksAllChecked && (day !== 1 || mythsRead)
+
   if (!hasAccess) {
     return (
       <main className="mx-auto min-h-screen max-w-md px-6 py-16 text-center">
@@ -175,10 +183,15 @@ export default function PlanDayPage() {
         <p className="text-sm text-stone-500">🎧 Audio</p>
         <p className="font-medium">{content.audioTrack}</p>
         {isPaidUser ? (
-          <FullAudioPlayer />
+          <FullAudioPlayer onPlay={() => setAudioPlayed(true)} />
         ) : (
           <>
-            <audio controls className="mt-3 w-full" preload="none">
+            <audio
+              controls
+              className="mt-3 w-full"
+              preload="none"
+              onPlay={() => setAudioPlayed(true)}
+            >
               <source src="/audio/preview-gratis.mp3" type="audio/mpeg" />
             </audio>
             <p className="mt-2 text-xs text-stone-400">
@@ -187,34 +200,65 @@ export default function PlanDayPage() {
             </p>
           </>
         )}
+        {!audioPlayed && (
+          <p className="mt-2 text-xs text-amber-600">
+            Dale play al audio para poder completar el día de hoy.
+          </p>
+        )}
       </div>
 
       <ul className="mt-6 space-y-3">
         {content.tasks.map((task, i) => (
-          <li key={i} className="flex gap-3 rounded-xl border border-stone-200 bg-white p-4">
-            <span className="text-blue-700">✓</span>
-            <span>{task}</span>
+          <li key={i}>
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-stone-200 bg-white p-4">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-5 w-5 shrink-0 accent-blue-700"
+                checked={!!checkedTasks[i]}
+                onChange={(e) => {
+                  const next = [...checkedTasks]
+                  next[i] = e.target.checked
+                  setCheckedTasks(next)
+                }}
+              />
+              <span>{task}</span>
+            </label>
           </li>
         ))}
       </ul>
+      {!tasksAllChecked && (
+        <p className="mt-2 text-xs text-amber-600">
+          Marca cada tarea a medida que la hagas para poder completar el día.
+        </p>
+      )}
 
       {day === 1 && (
         <div className="mt-8">
           <h2 className="font-semibold">Mitos que probablemente creías</h2>
           <div className="mt-3 space-y-3">
-            {MYTHS.slice(0, 2).map((m) => (
+            {MYTHS.map((m) => (
               <div key={m.title} className="rounded-xl bg-amber-50 p-4 text-sm">
                 <p className="font-medium">{m.title}</p>
                 <p className="mt-1 text-stone-600">{m.reality}</p>
               </div>
             ))}
           </div>
+          <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="h-5 w-5 accent-blue-700"
+              checked={mythsRead}
+              onChange={(e) => setMythsRead(e.target.checked)}
+            />
+            Ya leí los {MYTHS.length} mitos
+          </label>
         </div>
       )}
 
       <button
         onClick={markComplete}
-        className="mt-8 w-full rounded-full bg-blue-700 py-3 font-semibold text-white"
+        disabled={!canComplete}
+        className="mt-8 w-full rounded-full bg-blue-700 py-3 font-semibold text-white disabled:opacity-40"
       >
         {day < 7 ? 'Completar día y continuar →' : 'Completar mi semana 🎉'}
       </button>

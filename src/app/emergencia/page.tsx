@@ -1,10 +1,17 @@
+import Link from 'next/link'
 import { EMERGENCY_GUIDE } from '@/lib/content'
 
 // Modo oscuro fijo: se usa a las 3 AM, con el cerebro apagado.
 // Texto grande, alto contraste, sin nada que requiera pensar.
 export default function EmergenciaPage() {
   return (
-    <main className="min-h-screen bg-black px-6 py-10 text-stone-100">
+    <main className="min-h-screen bg-black px-6 py-10 pb-24 text-stone-100">
+      <Link
+        href="/plan/1"
+        className="fixed left-4 top-4 z-50 flex items-center gap-1 rounded-full bg-stone-800 px-4 py-2 text-sm font-medium text-stone-100"
+      >
+        ← Salir
+      </Link>
       <p className="text-center text-xs uppercase tracking-widest text-stone-400">
         Guía de emergencia nocturna
       </p>
