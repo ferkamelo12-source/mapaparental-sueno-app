@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
+import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import {
@@ -255,10 +256,26 @@ export default function PlanDayPage() {
         </div>
       )}
 
+      <Link
+        href="/registro"
+        className="mt-8 flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white py-3 text-sm font-medium text-stone-700"
+      >
+        📋 Ir a mi registro de sueño
+      </Link>
+
+      {isPaidUser && (
+        <Link
+          href="/bonos"
+          className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white py-3 text-sm font-medium text-stone-700"
+        >
+          🎁 Ver mis bonos
+        </Link>
+      )}
+
       <button
         onClick={markComplete}
         disabled={!canComplete}
-        className="mt-8 w-full rounded-full bg-blue-700 py-3 font-semibold text-white disabled:opacity-40"
+        className="mt-4 w-full rounded-full bg-blue-700 py-3 font-semibold text-white disabled:opacity-40"
       >
         {day < 7 ? 'Completar día y continuar →' : 'Completar mi semana 🎉'}
       </button>

@@ -66,11 +66,17 @@ export default function PreciosPage() {
         </button>
       </div>
 
-      <p className="mt-6 text-xs text-stone-400">
-        Incluye: plan completo de 7 días, registro de sueño digital, guía de
-        emergencia nocturna y audio narrado. Nuevas regresiones de sueño
-        (4, 8-10 y 18 meses) traen contenido nuevo.
-      </p>
+      <div className="mt-8 rounded-xl bg-stone-50 p-5 text-left">
+        <p className="text-sm font-semibold text-stone-700">Todo lo que incluye tu plan:</p>
+        <ul className="mt-3 space-y-2 text-sm text-stone-600">
+          <li>✅ Plan guiado de 7 días, con audio narrado completo</li>
+          <li>✅ Registro de sueño digital</li>
+          <li>✅ Guía de Emergencia Nocturna, siempre a un toque</li>
+          <li>✅ Nuevas regresiones de sueño (4, 8-10 y 18 meses)</li>
+          <li>🎁 <span className="font-medium text-stone-800">BONO:</span> Rutina Diaria para tu Bebé (PDF)</li>
+          <li>🎁 <span className="font-medium text-stone-800">BONO:</span> Proceso Manual Completo (PDF)</li>
+        </ul>
+      </div>
     </main>
   )
 }
