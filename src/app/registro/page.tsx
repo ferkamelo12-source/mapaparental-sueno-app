@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase-browser'
 
 const MOODS = [
@@ -64,7 +65,10 @@ export default function RegistroPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-md px-6 py-12">
-      <h1 className="text-2xl font-bold">Registro de sueño de hoy</h1>
+      <Link href="/plan/1" className="text-sm font-medium text-stone-500">
+        ← Volver a mi plan
+      </Link>
+      <h1 className="mt-4 text-2xl font-bold">Registro de sueño de hoy</h1>
       <p className="mt-2 text-sm text-stone-600">
         30 segundos cada mañana. Observa patrones, no te obsesiones.
       </p>
