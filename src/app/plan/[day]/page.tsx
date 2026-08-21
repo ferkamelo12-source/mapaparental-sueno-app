@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
@@ -16,33 +16,6 @@ type Baby = {
   id: string
   birth_date: string
   main_problem: string
-}
-
-function FullAudioPlayer({ onPlay }: { onPlay: () => void }) {
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const [part, setPart] = useState<1 | 2>(1)
-
-  useEffect(() => {
-    if (part === 2 && audioRef.current) {
-      audioRef.current.load()
-      audioRef.current.play().catch(() => {})
-    }
-  }, [part])
-
-  return (
-    <audio
-      ref={audioRef}
-      controls
-      className="mt-3 w-full"
-      preload="none"
-      onPlay={onPlay}
-      onEnded={() => {
-        if (part === 1) setPart(2)
-      }}
-    >
-      <source src={`/audio/audio-completo-parte${part}.mp3`} type="audio/mpeg" />
-    </audio>
-  )
 }
 
 export default function PlanDayPage() {
@@ -105,7 +78,7 @@ export default function PlanDayPage() {
       .select('status')
       .eq('user_id', user.id)
       .maybeSingle()
-    const paid = !!sub && ['trialing', 'active'].includes(sub.status)
+    const paid = !!sub && sub.status === 'active'
     setIsPaidUser(paid)
 
     // Día 1 siempre gratis. Del día 2 en adelante requiere suscripción activa/en prueba.
@@ -150,8 +123,9 @@ export default function PlanDayPage() {
       <main className="mx-auto min-h-screen max-w-md px-6 py-16 text-center">
         <h1 className="text-2xl font-bold">El Día 1 fue gratis 🎉</h1>
         <p className="mt-3 text-stone-600">
-          Para continuar con el plan completo de 7 días (incluyendo tu registro
-          de sueño y la guía de emergencia nocturna) activa tu prueba de 3 días.
+          Para continuar con el plan completo de 7 días (incluyendo la Clave 1,
+          tu registro de sueño y la guía de emergencia nocturna) activa tu
+          plan.
         </p>
         <a
           href="/precios"
@@ -181,10 +155,18 @@ export default function PlanDayPage() {
       )}
 
       <div className="mt-6 rounded-xl border border-stone-200 bg-white p-5">
-        <p className="text-sm text-stone-500">🎧 Audio</p>
+        <p className="text-sm text-stone-500">🎧 Audio de hoy</p>
         <p className="font-medium">{content.audioTrack}</p>
         {isPaidUser ? (
-          <FullAudioPlayer onPlay={() => setAudioPlayed(true)} />
+          <audio
+            key={`dia-${day}`}
+            controls
+            className="mt-3 w-full"
+            preload="none"
+            onPlay={() => setAudioPlayed(true)}
+          >
+            <source src={`/audio/dia-${day}.mp3`} type="audio/mpeg" />
+          </audio>
         ) : (
           <>
             <audio
@@ -197,7 +179,7 @@ export default function PlanDayPage() {
             </audio>
             <p className="mt-2 text-xs text-stone-400">
               Este es un adelanto de 90 segundos. Al activar tu plan, se
-              desbloquea el audio completo de la guía.
+              desbloquea el audio completo de cada día.
             </p>
           </>
         )}

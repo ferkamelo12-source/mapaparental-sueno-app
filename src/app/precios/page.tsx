@@ -36,7 +36,8 @@ export default function PreciosPage() {
     <main className="mx-auto min-h-screen max-w-md px-6 py-16 text-center">
       <h1 className="text-3xl font-bold">Continúa tu plan completo</h1>
       <p className="mt-3 text-stone-600">
-        3 días de prueba gratis. Cancela cuando quieras.
+        El Día 1 ya lo probaste gratis. Actívalo cuando estés listo — cancela
+        cuando quieras.
       </p>
 
       {error && (
