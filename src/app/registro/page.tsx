@@ -154,6 +154,8 @@ export default function RegistroPage() {
   const [babyId, setBabyId] = useState<string | null>(null)
   const [bedtime, setBedtime] = useState('')
   const [wakings, setWakings] = useState(0)
+  const [naps, setNaps] = useState(0)
+  const [napsDuration, setNapsDuration] = useState('')
   const [wakeTime, setWakeTime] = useState('')
   const [mood, setMood] = useState('')
   const [saved, setSaved] = useState(false)
@@ -207,6 +209,8 @@ export default function RegistroPage() {
         log_date: new Date().toISOString().slice(0, 10),
         bedtime: bedtime || null,
         night_wakings: wakings,
+        naps_count: naps,
+        naps_duration_minutes: napsDuration ? Number(napsDuration) : null,
         wake_time: wakeTime || null,
         morning_mood: mood || null,
       },
@@ -263,6 +267,28 @@ export default function RegistroPage() {
             min={0}
             value={wakings}
             onChange={(e) => setWakings(Number(e.target.value))}
+            className="mt-1 w-full rounded-lg border border-stone-300 p-3"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium">Siestas de hoy</span>
+          <input
+            type="number"
+            min={0}
+            value={naps}
+            onChange={(e) => setNaps(Number(e.target.value))}
+            className="mt-1 w-full rounded-lg border border-stone-300 p-3"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium">Duración total de siestas (minutos, aprox.)</span>
+          <input
+            type="number"
+            min={0}
+            value={napsDuration}
+            onChange={(e) => setNapsDuration(e.target.value)}
             className="mt-1 w-full rounded-lg border border-stone-300 p-3"
           />
         </label>
@@ -450,6 +476,9 @@ export default function RegistroPage() {
               <div key={l.id} className="flex justify-between rounded-lg bg-stone-100 p-3">
                 <span>{l.log_date}</span>
                 <span>{l.night_wakings} despertares</span>
+                <span>
+                  {l.naps_count != null ? `${l.naps_count} siesta${l.naps_count === 1 ? '' : 's'}` : '—'}
+                </span>
                 <span>{l.morning_mood ?? '—'}</span>
               </div>
             ))}
