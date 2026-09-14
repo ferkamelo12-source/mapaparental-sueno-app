@@ -17,15 +17,15 @@ errores.
 - Base de datos ya creada en un proyecto Supabase nuevo y separado
   ("mapaparental-sueno"), con seguridad a nivel de fila (cada usuario solo ve
   sus propios datos).
-- Página de precios ($9.99/mes o $49.99/año, prueba de 3 días) y las rutas de
-  Stripe Checkout + webhook para activar/cancelar la suscripción automáticamente.
+- Página de precios (pago único de $17 USD, acceso de por vida) y las rutas de
+  Stripe Checkout + webhook para activar el acceso automáticamente al pagar.
 
 ## Lo que TÚ necesitas hacer antes de lanzar (15-20 min)
 
 1. **Crea tu cuenta de Stripe** (stripe.com) si no la tienes.
 2. En el panel de Stripe (modo Test primero):
-   - Crea dos precios recurrentes: uno mensual ($9.99) y uno anual ($49.99).
-   - Copia sus `price_id` a `STRIPE_PRICE_MONTHLY` y `STRIPE_PRICE_YEARLY` en `.env.local`.
+   - No necesitas crear un precio en el dashboard: el checkout crea el precio
+     de $17 al vuelo (`price_data` en `src/app/api/checkout/route.ts`).
    - Copia tu clave secreta a `STRIPE_SECRET_KEY` y la pública a `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
 3. En Supabase Dashboard → proyecto **mapaparental-sueno** → Project Settings →
    API → copia la `service_role key` a `SUPABASE_SERVICE_ROLE_KEY` en `.env.local`.

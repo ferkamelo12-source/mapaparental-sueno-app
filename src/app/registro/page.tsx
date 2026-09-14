@@ -30,6 +30,18 @@ type WakingEvent = {
   notes: string | null
 }
 
+type SleepLog = {
+  id: string
+  baby_id: string
+  log_date: string
+  bedtime: string | null
+  night_wakings: number | null
+  naps_count: number | null
+  naps_duration_minutes: number | null
+  wake_time: string | null
+  morning_mood: string | null
+}
+
 function detectPattern(events: WakingEvent[]) {
   if (events.length < 3) return null
 
@@ -78,7 +90,7 @@ function detectPattern(events: WakingEvent[]) {
   }
 }
 
-function WakingsChart({ logs }: { logs: any[] }) {
+function WakingsChart({ logs }: { logs: SleepLog[] }) {
   // logs llega ordenado del más reciente al más viejo; lo invertimos para
   // mostrar el tiempo de izquierda (más viejo) a derecha (hoy).
   const data = [...logs].reverse()
@@ -159,7 +171,7 @@ export default function RegistroPage() {
   const [wakeTime, setWakeTime] = useState('')
   const [mood, setMood] = useState('')
   const [saved, setSaved] = useState(false)
-  const [logs, setLogs] = useState<any[]>([])
+  const [logs, setLogs] = useState<SleepLog[]>([])
 
   const [wakingEvents, setWakingEvents] = useState<WakingEvent[]>([])
   const [newEventTime, setNewEventTime] = useState('')
@@ -198,6 +210,7 @@ export default function RegistroPage() {
   }, [supabase])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga de datos al montar, patrón estándar
     load()
   }, [load])
 

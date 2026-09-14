@@ -28,7 +28,7 @@ export default function BonosPage() {
         .eq('user_id', user.id)
         .maybeSingle()
 
-      setHasAccess(!!sub && ['trialing', 'active'].includes(sub.status))
+      setHasAccess(!!sub && sub.status === 'paid')
       setLoading(false)
     })()
   }, [router, supabase])

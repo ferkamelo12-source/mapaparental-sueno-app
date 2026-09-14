@@ -1,10 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase-server'
 
-export async function POST(req: NextRequest) {
-  const { plan } = await req.json()
-
+export async function POST() {
   const supabase = await createClient()
   const {
     data: { user },
@@ -23,12 +21,22 @@ export async function POST(req: NextRequest) {
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
-  const priceId =
-    plan === 'yearly' ? process.env.STRIPE_PRICE_YEARLY : process.env.STRIPE_PRICE_MONTHLY
-
   const session = await stripe.checkout.sessions.create({
-    mode: 'subscription',
-    line_items: [{ price: priceId, quantity: 1 }],
+    mode: 'payment',
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          unit_amount: 1700,
+          product_data: {
+            name: 'El Método de las 3 Claves — Acceso completo',
+            description:
+              'Plan guiado de 7 días, audio narrado, registro de sueño y bonos. Pago único, acceso de por vida.',
+          },
+        },
+        quantity: 1,
+      },
+    ],
     customer_email: user.email,
     client_reference_id: user.id,
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/plan/2?checkout=success`,

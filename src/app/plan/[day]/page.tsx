@@ -78,10 +78,10 @@ export default function PlanDayPage() {
       .select('status')
       .eq('user_id', user.id)
       .maybeSingle()
-    const paid = !!sub && sub.status === 'active'
+    const paid = !!sub && sub.status === 'paid'
     setIsPaidUser(paid)
 
-    // Día 1 siempre gratis. Del día 2 en adelante requiere suscripción activa/en prueba.
+    // Día 1 siempre gratis. Del día 2 en adelante requiere el pago único.
     if (day <= 1) {
       setHasAccess(true)
     } else {
@@ -92,6 +92,7 @@ export default function PlanDayPage() {
   }, [day, router, supabase])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- carga de datos al montar, patrón estándar
     bootstrap()
   }, [bootstrap])
 
@@ -124,8 +125,8 @@ export default function PlanDayPage() {
         <h1 className="text-2xl font-bold">El Día 1 fue gratis 🎉</h1>
         <p className="mt-3 text-stone-600">
           Para continuar con el plan completo de 7 días (incluyendo la Clave 1,
-          tu registro de sueño y la guía de emergencia nocturna) activa tu
-          plan.
+          tu registro de sueño y la guía de emergencia nocturna), haz el pago
+          único de $17 — acceso de por vida, sin suscripciones.
         </p>
         <a
           href="/precios"

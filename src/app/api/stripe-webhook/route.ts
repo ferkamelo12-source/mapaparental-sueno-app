@@ -19,43 +19,31 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err) {
-    return NextResponse.json({ error: `Webhook error: ${err}` }, { status: 400 })
+    console.error('Webhook signature verification failed:', err instanceof Error ? err.message : String(err))
+    return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 })
   }
 
+  // Pago único (no suscripción): al completar el checkout, marcamos al
+  // usuario como "paid" para siempre. No hay renovación ni cancelación
+  // que rastrear, así que solo escuchamos este evento.
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       const userId = session.client_reference_id
-      if (userId && session.subscription) {
-        const sub = await stripe.subscriptions.retrieve(session.subscription as string)
+      if (userId && session.payment_status === 'paid') {
         await supabaseAdmin.from('subscriptions').upsert(
           {
             user_id: userId,
             stripe_customer_id: session.customer as string,
-            stripe_subscription_id: sub.id,
-            status: sub.status,
-            price_id: sub.items.data[0]?.price.id,
-            current_period_end: new Date(
-              (sub as any).current_period_end * 1000
-            ).toISOString(),
+            stripe_subscription_id: session.payment_intent as string,
+            status: 'paid',
+            price_id: null,
+            current_period_end: null,
             updated_at: new Date().toISOString(),
           },
           { onConflict: 'user_id' }
         )
       }
-      break
-    }
-    case 'customer.subscription.updated':
-    case 'customer.subscription.deleted': {
-      const sub = event.data.object as Stripe.Subscription
-      await supabaseAdmin
-        .from('subscriptions')
-        .update({
-          status: sub.status,
-          current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq('stripe_subscription_id', sub.id)
       break
     }
   }
