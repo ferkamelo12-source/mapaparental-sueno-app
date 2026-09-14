@@ -21,27 +21,35 @@ export async function POST() {
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items: [
-      {
-        price_data: {
-          currency: 'usd',
-          unit_amount: 1700,
-          product_data: {
-            name: 'El Método de las 3 Claves — Acceso completo',
-            description:
-              'Plan guiado de 7 días, audio narrado, registro de sueño y bonos. Pago único, acceso de por vida.',
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            unit_amount: 1700,
+            product_data: {
+              name: 'El Método de las 3 Claves — Acceso completo',
+              description:
+                'Plan guiado de 7 días, audio narrado, registro de sueño y bonos. Pago único, acceso de por vida.',
+            },
           },
+          quantity: 1,
         },
-        quantity: 1,
-      },
-    ],
-    customer_email: user.email,
-    client_reference_id: user.id,
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/plan/2?checkout=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/precios`,
-  })
+      ],
+      customer_email: user.email,
+      client_reference_id: user.id,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/plan/2?checkout=success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/precios`,
+    })
 
-  return NextResponse.json({ url: session.url })
+    return NextResponse.json({ url: session.url })
+  } catch (err) {
+    console.error('Stripe checkout session creation failed:', err instanceof Error ? err.message : String(err))
+    return NextResponse.json(
+      { error: 'No se pudo iniciar el pago con Stripe. Intenta de nuevo en unos minutos.' },
+      { status: 502 }
+    )
+  }
 }
