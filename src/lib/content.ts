@@ -29,12 +29,13 @@ export function getSleepWindowForAge(ageMonths: number) {
 }
 
 export function ageInMonths(birthDate: string): number {
-  const birth = new Date(birthDate)
+  // Se parsea el año/mes directamente del string (en vez de `new Date(birthDate)`)
+  // porque un string "YYYY-MM-DD" se interpreta como medianoche UTC, mientras que
+  // getFullYear()/getMonth() devuelven el año/mes en hora LOCAL — en husos horarios
+  // detrás de UTC eso corría la edad calculada un mes de más para partos el día 1.
+  const [year, month] = birthDate.split('-').map(Number)
   const now = new Date()
-  return (
-    (now.getFullYear() - birth.getFullYear()) * 12 +
-    (now.getMonth() - birth.getMonth())
-  )
+  return (now.getFullYear() - year) * 12 + (now.getMonth() - (month - 1))
 }
 
 // Los 5 mitos (pág. 6-7)
